@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Layout title="qjq blog" description="一个用 Astro 搭建的个人博客">
+    <h1>qjq blog</h1>
+    <p>这里记录学习、折腾、生活的小片段。技术、生活、随想混合写,慢慢积累。</p>
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li class="post-list-item">
+          <h3><a href={`/blog/${post.id}`}>{post.data.title}</a></h3>
+          <div class="post-meta">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {formatDate(post.data.pubDate)}
+            </time>
+            {post.data.tags.length > 0 && (
+              <span> · {post.data.tags.join(' · ')}</span>
+            )}
+          </div>
+          {post.data.description && (
+            <p class="post-desc">{post.data.description}</p>
+          )}
+          <a class="read-more" href={`/blog/${post.id}`}>阅读全文 →</a>
+        </li>
+      ))}
+    </ul>
+  </Layout>
